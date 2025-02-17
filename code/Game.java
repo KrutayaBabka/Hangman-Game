@@ -3,12 +3,12 @@ package code;
 import java.util.List;
 import java.util.Random;
 
-public class Game {
+public final class Game {
     private String wordToGuess;
     private StringBuilder currentState;
     private int attemptsLeft;
     private StringBuilder usedLetters;
-    private List<String> words;
+    private final List<String> words;
 
     public Game(List<String> words) {
         this.words = words;

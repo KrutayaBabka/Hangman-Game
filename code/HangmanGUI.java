@@ -7,7 +7,7 @@ import java.util.List;
 import javax.swing.*;
 
 public class HangmanGUI extends JFrame {
-    private Game game;
+    private final Game game;
     private JLabel wordLabel;       // Поле с загаданным словом
     private JLabel attemptsLabel;   // Количество попыток
     private JLabel usedLettersLabel;// Использованные буквы
@@ -15,6 +15,9 @@ public class HangmanGUI extends JFrame {
     private JButton guessButton;    // Кнопка "Угадать"
     private JButton exitButton;     // Кнопка выхода
     private JLabel imageLabel;      // Поле для картинки
+    private JLabel coinLabel;       // Поле для изображения монетки
+    private JLabel scoreLabel;      // Поле для отображения баллов
+    private int score = 0;          // Текущее количество баллов
 
     public HangmanGUI(List<String> words) {
         game = new Game(words);
@@ -31,17 +34,32 @@ public class HangmanGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout()); // Используем BorderLayout
 
-        // Панель для размещения кнопки "Exit" в правом верхнем углу с отступами
+        // Панель для размещения кнопки "Exit" и поля с монеткой и баллами
         JPanel topPanel = new JPanel(new BorderLayout());
         exitButton = new JButton("Exit");
         exitButton.setFont(new Font("Arial", Font.BOLD, 20));
         exitButton.setPreferredSize(new Dimension(100, 50)); // Устанавливаем размер кнопки
-        exitButton.addActionListener(e -> exitGame());
-        
-        // Устанавливаем отступы от краёв экрана для панели, содержащей кнопку
+        exitButton.addActionListener(_ -> exitGame());
+
+        // Панель для монетки и баллов
+        JPanel coinPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        coinLabel = new JLabel(new ImageIcon("assets/images/coin.png")); // Загружаем изображение монетки
+
+        // Ограничиваем размеры монетки
+        ImageIcon coinIcon = new ImageIcon("assets/images/coin.png");
+        Image coinImage = coinIcon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH); // Масштабируем изображение до 30x30
+        coinLabel.setIcon(new ImageIcon(coinImage)); // Устанавливаем масштабированное изображение
+
+        scoreLabel = new JLabel("Score: " + score);
+        scoreLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        coinPanel.add(coinLabel);
+        coinPanel.add(scoreLabel);
+
+        // Устанавливаем отступы от краёв экрана для панели, содержащей кнопку и монетку
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Отступы сверху, слева, снизу и справа
 
-        topPanel.add(exitButton, BorderLayout.EAST); // Размещаем кнопку на востоке (справа)
+        topPanel.add(coinPanel, BorderLayout.WEST); // Монетка и баллы слева
+        topPanel.add(exitButton, BorderLayout.EAST); // Кнопка Exit справа
         add(topPanel, BorderLayout.NORTH); // Добавляем панель в верхнюю часть окна
 
         // Панель для остальной части UI
@@ -86,7 +104,7 @@ public class HangmanGUI extends JFrame {
         mainPanel.add(inputPanel, gbc);
 
         // Обработчик кнопки "Угадать"
-        guessButton.addActionListener(e -> handleGuess());
+        guessButton.addActionListener(_ -> handleGuess());
 
         // Обработчик нажатия Enter
         inputField.addKeyListener(new KeyAdapter() {
@@ -126,9 +144,20 @@ public class HangmanGUI extends JFrame {
         // Проверяем конец игры
         if (game.isGameOver()) {
             if (game.getAttemptsLeft() > 0) {
+                // Увеличиваем баллы за угаданное слово
+                int wordLength = game.getWordToGuess().length();
+                int errors = 6 - game.getAttemptsLeft(); // Максимум 6 ошибок
+                score += (wordLength - errors) * 10;
+                scoreLabel.setText("Score: " + score);
+
                 SoundManager.playSound("win.wav", 1.0f); // 100% громкость
                 JOptionPane.showMessageDialog(this, "Congratulations! You guessed the word: " + game.getWordToGuess());
             } else {
+                // Уменьшаем баллы за проигрыш
+                int wordLength = game.getWordToGuess().length();
+                score -= wordLength * 10;
+                scoreLabel.setText("Score: " + score);
+
                 SoundManager.playSound("lose.wav", 1.0f); // 100% громкость
                 JOptionPane.showMessageDialog(this, "Game Over! The word was: " + game.getWordToGuess());
             }

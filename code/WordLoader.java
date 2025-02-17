@@ -12,7 +12,7 @@ public class WordLoader {
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             String line;
             while ((line = br.readLine()) != null) {
-                words.add(line.trim());
+                words.add(line.toLowerCase().trim());
             }
         } catch (IOException e) {
             // e.printStackTrace();
