@@ -15,7 +15,7 @@ public class WordLoader {
                 words.add(line.trim());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         }
         return words;
     }
