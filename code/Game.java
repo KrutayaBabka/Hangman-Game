@@ -18,7 +18,7 @@ public final class Game {
     public void setNewWord() {
         this.wordToGuess = getRandomWord();
         this.currentState = new StringBuilder("_".repeat(wordToGuess.length()));
-        this.attemptsLeft = 6;
+        this.attemptsLeft = GameConfig.NUMBER_OF_LIVES;
         this.usedLetters = new StringBuilder();
     }
 

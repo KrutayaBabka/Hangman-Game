@@ -23,8 +23,8 @@ public class HangmanGUI extends JFrame {
         game = new Game(words);
         initUI();
 
-        // Запуск фоновой музыки с громкостью 100%
-        SoundManager.playBackgroundMusic("background.wav", 1.0f);
+        // Запуск фоновой музыки
+        SoundManager.playBackgroundMusic(GameConfig.BACKGROUND_SOUND, GameConfig.BACKGROUND_VOLUME);
     }
 
     private void initUI() {
@@ -136,9 +136,9 @@ public class HangmanGUI extends JFrame {
 
         // Звук при угаданной букве
         if (game.getAttemptsLeft() == attemptsBefore) {
-            SoundManager.playSound("correct.wav", 1.0f); // 100% громкость
+            SoundManager.playSound(GameConfig.CORRECT_SOUND, GameConfig.CORRECT_VOLUME); // 100% громкость
         } else {
-            SoundManager.playSound("wrong.wav", 1.0f);   // 100% громкость
+            SoundManager.playSound(GameConfig.WRONG_SOUND, GameConfig.WRONG_VOLUME);   // 100% громкость
         }
 
         // Проверяем конец игры
@@ -150,7 +150,7 @@ public class HangmanGUI extends JFrame {
                 score += (wordLength - errors) * 10;
                 scoreLabel.setText("Score: " + score);
 
-                SoundManager.playSound("win.wav", 1.0f); // 100% громкость
+                SoundManager.playSound(GameConfig.WIN_SOUND, GameConfig.WIN_VOLUME); // 100% громкость
                 JOptionPane.showMessageDialog(this, "Congratulations! You guessed the word: " + game.getWordToGuess());
             } else {
                 // Уменьшаем баллы за проигрыш
@@ -158,7 +158,7 @@ public class HangmanGUI extends JFrame {
                 score -= wordLength * 10;
                 scoreLabel.setText("Score: " + score);
 
-                SoundManager.playSound("lose.wav", 1.0f); // 100% громкость
+                SoundManager.playSound(GameConfig.LOSE_SOUND, GameConfig.LOSE_VOLUME); // 100% громкость
                 JOptionPane.showMessageDialog(this, "Game Over! The word was: " + game.getWordToGuess());
             }
             askToPlayAgain();
@@ -183,16 +183,21 @@ public class HangmanGUI extends JFrame {
         }
     }
 
-    // Метод для обновления изображения в зависимости от количества оставшихся жизней
     private void updateImage() {
-        int index = 7 - game.getAttemptsLeft();
-        if (index < 1) index = 1;
-        if (index > 7) index = 7;
-
+        int maxLives = GameConfig.NUMBER_OF_LIVES; // Количество жизней 
+        int totalImages = 7; // Всего 7 изображений (от 1.png до 7.png)
+        
+        // Определяем индекс изображения
+        int index = 1 + (totalImages - 1) * (maxLives - game.getAttemptsLeft()) / maxLives;
+    
+        // Ограничиваем индекс от 1 до 7
+        index = Math.max(1, Math.min(index, totalImages));
+    
+        // Загружаем картинку
         String imagePath = "assets/images/" + index + ".png";
         ImageIcon icon = new ImageIcon(imagePath);
         imageLabel.setIcon(icon);
-    }
+    }    
 
     // Метод для форматирования слова с пробелами между "_"
     private String formatMaskedWord(String maskedWord) {
